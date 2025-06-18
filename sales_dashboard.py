@@ -5,6 +5,9 @@ import seaborn as sns
 import numpy as np
 import matplotlib.font_manager as fm
 
+st.set_page_config(page_title="매출 분석 대시보드", layout="wide")
+st.title("💊 제약 매출 분석 대시보드")
+
 # 한글 폰트 설정
 # GitHub 업로드된 NanumGothic.ttf 폰트 직접 경로 지정
 font_path = "fonts/NanumGothic.ttf"
@@ -25,9 +28,6 @@ korean_fonts = [f for f in font_path if 'malgun' in f.lower() or 'nanum' in f.lo
 if korean_fonts:
     plt.rcParams['font.family'] = fm.FontProperties(fname=korean_fonts[0]).get_name()
 plt.rcParams['axes.unicode_minus'] = False
-
-st.set_page_config(page_title="매출 분석 대시보드", layout="wide")
-st.title("💊 제약 매출 분석 대시보드")
 
 uploaded_file = st.file_uploader("📁 매출 데이터 CSV 파일 업로드", type=["csv"])
 
