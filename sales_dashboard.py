@@ -4,6 +4,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+# 한글 폰트 직접 지정
+plt.rcParams['axes.unicode_minus'] = False
+
+# 직접 경로 설정 (Streamlit Cloud는 상대경로 사용)
+font_path = "fonts/NanumGothic.ttf"
+font_name = fm.FontProperties(fname=font_path).get_name()
+plt.rcParams['font.family'] = font_name
+
 
 st.set_page_config(page_title="매출 분석 대시보드", layout="wide")
 st.title("💊 제약 매출 분석 대시보드")
@@ -14,14 +25,6 @@ font_path = "fonts/NanumGothic.ttf"
 font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
 plt.rcParams['axes.unicode_minus'] = False
-
-# 폰트 존재 확인용 디버그
-try:
-    with open("fonts/NanumGothic.ttf", "rb") as f:
-        st.success("✅ 폰트 파일 존재 확인 완료")
-except FileNotFoundError:
-    st.error("❌ 폰트 파일을 찾을 수 없습니다. 경로를 확인하세요.")
-
 
 font_path = fm.findSystemFonts(fontpaths=None, fontext='ttf')
 korean_fonts = [f for f in font_path if 'malgun' in f.lower() or 'nanum' in f.lower()]
