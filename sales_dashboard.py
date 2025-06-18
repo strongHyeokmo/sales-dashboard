@@ -6,6 +6,12 @@ import numpy as np
 import matplotlib.font_manager as fm
 
 # 한글 폰트 설정
+# GitHub 업로드된 NanumGothic.ttf 폰트 직접 경로 지정
+font_path = "fonts/NanumGothic.ttf"
+font_prop = fm.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = font_prop.get_name()
+plt.rcParams['axes.unicode_minus'] = False
+
 font_path = fm.findSystemFonts(fontpaths=None, fontext='ttf')
 korean_fonts = [f for f in font_path if 'malgun' in f.lower() or 'nanum' in f.lower()]
 if korean_fonts:
