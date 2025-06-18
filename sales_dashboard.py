@@ -12,6 +12,14 @@ font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
 plt.rcParams['axes.unicode_minus'] = False
 
+# 폰트 존재 확인용 디버그
+try:
+    with open("fonts/NanumGothic.ttf", "rb") as f:
+        st.success("✅ 폰트 파일 존재 확인 완료")
+except FileNotFoundError:
+    st.error("❌ 폰트 파일을 찾을 수 없습니다. 경로를 확인하세요.")
+
+
 font_path = fm.findSystemFonts(fontpaths=None, fontext='ttf')
 korean_fonts = [f for f in font_path if 'malgun' in f.lower() or 'nanum' in f.lower()]
 if korean_fonts:
