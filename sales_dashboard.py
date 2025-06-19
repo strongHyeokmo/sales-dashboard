@@ -163,7 +163,6 @@ if uploaded_file:
             hanmi_summary = filtered_hanmi.groupby(['기준년월', '담당자'])['총매출'].sum().reset_index()
             st.dataframe(hanmi_summary.sort_values(by='기준년월'))
         else:
-        else:
             st.warning("선택한 조건에 해당하는 한미플루 매출 데이터가 없습니다.")
             st.info("한미플루 매출 데이터가 없습니다.")
 
