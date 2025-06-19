@@ -255,7 +255,7 @@ draw_monthly_lineplot(filtered_chart_df, '담당자', "담당자별")
 
 
 
-    # 자연어 질문 예시
+ # 자연어 질문 예시
     st.subheader("🧠 자연어 질문 예시")
     question = st.text_input("질문 입력 (예: '3월 매출이 가장 높은 거래처는?', '아모잘탄 매출은 얼마야?')")
     if question:
@@ -280,7 +280,7 @@ draw_monthly_lineplot(filtered_chart_df, '담당자', "담당자별")
             st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
         else:
             st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요. 더 많은 질문 유형은 곧 추가될 예정입니다.")
-
+   
     # 다운로드
     st.subheader("⬇ 분석 결과 다운로드")
     export_df = filtered_df[existing_cols] if 'filtered_df' in locals() and not filtered_df.empty else pd.DataFrame(columns=display_cols)
