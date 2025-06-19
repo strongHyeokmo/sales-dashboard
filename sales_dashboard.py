@@ -167,114 +167,114 @@ if uploaded_file:
     else:
         st.info("한미플루 매출 데이터가 없습니다.")
 
-# 상세 매출 분석
-st.subheader("🔍 상세 매출 필터 분석")
-with st.expander("필터 조건 설정"):
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        selected_rep = st.multiselect("담당자", options=df['담당자'].unique(), key="rep_filter")
-        selected_group = st.multiselect("품목군", options=df['품목군'].unique() if '품목군' in df.columns else [], key="group_filter")
-    with col2:
-        selected_client = st.multiselect("거래처명", options=df['거래처명'].unique(), key="client_filter")
-        selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="product_filter")
-    with col3:
-        selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
+    # 상세 매출 분석
+    st.subheader("🔍 상세 매출 필터 분석")
+    with st.expander("필터 조건 설정"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            selected_rep = st.multiselect("담당자", options=df['담당자'].unique(), key="rep_filter")
+            selected_group = st.multiselect("품목군", options=df['품목군'].unique() if '품목군' in df.columns else [], key="group_filter")
+        with col2:
+            selected_client = st.multiselect("거래처명", options=df['거래처명'].unique(), key="client_filter")
+            selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="product_filter")
+        with col3:
+            selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
 
-filtered_df = df.copy()
-if selected_rep:
-    filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
-if selected_client:
-    filtered_df = filtered_df[filtered_df['거래처명'].isin(selected_client)]
-if selected_group:
-    filtered_df = filtered_df[filtered_df['품목군'].isin(selected_group)]
-if selected_product:
-    filtered_df = filtered_df[filtered_df['품목명'].isin(selected_product)]
-if selected_months:
-    filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
+    filtered_df = df.copy()
+    if selected_rep:
+        filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
+    if selected_client:
+        filtered_df = filtered_df[filtered_df['거래처명'].isin(selected_client)]
+    if selected_group:
+        filtered_df = filtered_df[filtered_df['품목군'].isin(selected_group)]
+    if selected_product:
+        filtered_df = filtered_df[filtered_df['품목명'].isin(selected_product)]
+    if selected_months:
+        filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
 
-display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
-existing_cols = [col for col in display_cols if col in filtered_df.columns]
+    display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
+    existing_cols = [col for col in display_cols if col in filtered_df.columns]
 
-if not filtered_df.empty:
-    st.dataframe(filtered_df[existing_cols])
-else:
-    st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
-
-
-# 📈 월별 매출 추이 (자동 판단)
-st.subheader("📊 월별 매출 추이")
-
-if not filtered_df.empty:
-    filtered_df['기준년월_str'] = filtered_df['기준년월'].dt.strftime('%Y-%m')
-
-    # 월별 총합 계산 (총합도 하나의 항목처럼 포함)
-    total_monthly = filtered_df.groupby('기준년월_str')['총매출'].sum().reset_index()
-    total_monthly['구분'] = '총합'
-
-    # 어떤 항목이 복수개 있는지 판별하여 분기
-    unique_products = filtered_df['품목명'].nunique()
-    unique_clients = filtered_df['거래처명'].nunique()
-    unique_reps = filtered_df['담당자'].nunique()
-
-    if unique_products > 1:
-        grouped = filtered_df.groupby(['기준년월_str', '품목명'])['총매출'].sum().reset_index()
-        grouped = grouped.rename(columns={'품목명': '구분'})
-        title = "📦 제품별 월별 매출 추이"
-    elif unique_clients > 1:
-        grouped = filtered_df.groupby(['기준년월_str', '거래처명'])['총매출'].sum().reset_index()
-        grouped = grouped.rename(columns={'거래처명': '구분'})
-        title = "🏢 거래처별 월별 매출 추이"
-    elif unique_reps > 1:
-        grouped = filtered_df.groupby(['기준년월_str', '담당자'])['총매출'].sum().reset_index()
-        grouped = grouped.rename(columns={'담당자': '구분'})
-        title = "👤 담당자별 월별 매출 추이"
+    if not filtered_df.empty:
+        st.dataframe(filtered_df[existing_cols])
     else:
-        grouped = pd.DataFrame(columns=['기준년월_str', '총매출', '구분'])
-        title = "📊 월별 총매출"
-
-    # 총합 포함하여 병합
-    final_df = pd.concat([grouped, total_monthly], ignore_index=True)
-
-    # 그래프 그리기
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.lineplot(data=final_df, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
-
-    ax.set_title(title)
-    ax.set_xlabel("기준년월")
-    ax.set_ylabel("총매출")
-    ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-else:
-    st.info("먼저 필터 조건을 설정해 주세요.")
+        st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
 
+    # 📈 월별 매출 추이 (자동 판단)
+    st.subheader("📊 월별 매출 추이")
+    
+    if not filtered_df.empty:
+        filtered_df['기준년월_str'] = filtered_df['기준년월'].dt.strftime('%Y-%m')
 
-# 자연어 질문 예시
-st.subheader("🧠 자연어 질문 예시")
-question = st.text_input("질문 입력 (예: '3월 매출이 가장 높은 거래처는?', '아모잘탄 매출은 얼마야?')")
-if question:
-    q = question.replace(' ', '')
-    if '3월' in q and '거래처' in q and '높' in q:
-        top = df[df['기준년월'].dt.month == 3].groupby('거래처명')['총매출'].sum().idxmax()
-        st.success(f"3월 매출이 가장 높은 거래처는 **{top}** 입니다.")
-    elif '아모잘탄' in q and '매출' in q:
-        amount = df[df['품목명'].str.contains('아모잘탄', na=False)]['총매출'].sum()
-        st.success(f"아모잘탄 매출은 총 {amount:,.0f}원입니다.")
-    elif '거래처' in q and '가장많이' in q:
-        most = df.groupby('거래처명')['총매출'].sum().idxmax()
-        st.success(f"가장 많이 판매된 거래처는 **{most}** 입니다.")
-    elif '품목' in q and '가장많이' in q:
-        most_item = df.groupby('품목명')['총매출'].sum().idxmax()
-        st.success(f"가장 많이 팔린 품목은 **{most_item}** 입니다.")
-    elif '총매출' in q and '합계' in q:
-        st.success(f"전체 총매출은 {df['총매출'].sum():,.0f}원입니다.")
-    elif '담당자' in q and '매출' in q:
-        top_rep = df.groupby('담당자')['총매출'].sum().idxmax()
-        top_rep_amt = df.groupby('담당자')['총매출'].sum().max()
-        st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
-    else:
-        st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
+        # 월별 총합 계산 (총합도 하나의 항목처럼 포함)
+        total_monthly = filtered_df.groupby('기준년월_str')['총매출'].sum().reset_index()
+        total_monthly['구분'] = '총합'
+
+        # 어떤 항목이 복수개 있는지 판별하여 분기
+        unique_products = filtered_df['품목명'].nunique()
+        unique_clients = filtered_df['거래처명'].nunique()
+        unique_reps = filtered_df['담당자'].nunique()
+
+        if unique_products > 1:
+            grouped = filtered_df.groupby(['기준년월_str', '품목명'])['총매출'].sum().reset_index()
+            grouped = grouped.rename(columns={'품목명': '구분'})
+            title = "📦 제품별 월별 매출 추이"
+        elif unique_clients > 1:
+            grouped = filtered_df.groupby(['기준년월_str', '거래처명'])['총매출'].sum().reset_index()
+            grouped = grouped.rename(columns={'거래처명': '구분'})
+            title = "🏢 거래처별 월별 매출 추이"
+        elif unique_reps > 1:
+            grouped = filtered_df.groupby(['기준년월_str', '담당자'])['총매출'].sum().reset_index()
+            grouped = grouped.rename(columns={'담당자': '구분'})
+            title = "👤 담당자별 월별 매출 추이"
+        else:
+            grouped = pd.DataFrame(columns=['기준년월_str', '총매출', '구분'])
+            title = "📊 월별 총매출"
+
+        # 총합 포함하여 병합
+        final_df = pd.concat([grouped, total_monthly], ignore_index=True)
+
+        # 그래프 그리기
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sns.lineplot(data=final_df, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
+
+        ax.set_title(title)
+        ax.set_xlabel("기준년월")
+        ax.set_ylabel("총매출")
+        ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+        else:
+        st.info("먼저 필터 조건을 설정해 주세요.")
+
+
+
+    # 자연어 질문 예시
+    st.subheader("🧠 자연어 질문 예시")
+    question = st.text_input("질문 입력 (예: '3월 매출이 가장 높은 거래처는?', '아모잘탄 매출은 얼마야?')")
+    if question:
+        q = question.replace(' ', '')
+        if '3월' in q and '거래처' in q and '높' in q:
+            top = df[df['기준년월'].dt.month == 3].groupby('거래처명')['총매출'].sum().idxmax()
+            st.success(f"3월 매출이 가장 높은 거래처는 **{top}** 입니다.")
+        elif '아모잘탄' in q and '매출' in q:
+            amount = df[df['품목명'].str.contains('아모잘탄', na=False)]['총매출'].sum()
+            st.success(f"아모잘탄 매출은 총 {amount:,.0f}원입니다.")
+        elif '거래처' in q and '가장많이' in q:
+            most = df.groupby('거래처명')['총매출'].sum().idxmax()
+            st.success(f"가장 많이 판매된 거래처는 **{most}** 입니다.")
+        elif '품목' in q and '가장많이' in q:
+            most_item = df.groupby('품목명')['총매출'].sum().idxmax()
+            st.success(f"가장 많이 팔린 품목은 **{most_item}** 입니다.")
+        elif '총매출' in q and '합계' in q:
+            st.success(f"전체 총매출은 {df['총매출'].sum():,.0f}원입니다.")
+        elif '담당자' in q and '매출' in q:
+            top_rep = df.groupby('담당자')['총매출'].sum().idxmax()
+            top_rep_amt = df.groupby('담당자')['총매출'].sum().max()
+            st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
+        else:
+            st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
    
    
     # 다운로드
