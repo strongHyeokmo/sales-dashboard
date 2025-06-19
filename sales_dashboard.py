@@ -86,15 +86,15 @@ if uploaded_file:
         subset = df_main[df_main['년월'] == selected_month]
         title_unit = f"{selected_month}"
     else:
-        selected_quarter = st.selectbox("기준분기 선택", sorted(df['분기'].unique()), key="분기선택")
-        subset = df_main[df_main['분기'] == selected_quarter]
-        title_unit = f"{selected_quarter} 평균"
+    selected_quarter = st.selectbox("기준분기 선택", sorted(df['분기'].unique()), key="분기선택")
+    subset = df_main[df_main['분기'] == selected_quarter]
+    title_unit = f"{selected_quarter} 평균"
 
     if time_filter == "월별":
         avg_df = subset.groupby('거래처명')['총매출'].sum().reset_index()
     else:
-        month_count = subset['기준년월'].dt.to_period('M').nunique()
-        avg_df = subset.groupby('거래처명')['총매출'].sum().div(month_count).reset_index()
+    month_count = subset['기준년월'].dt.to_period('M').nunique()
+    avg_df = subset.groupby('거래처명')['총매출'].sum().div(month_count).reset_index()
 
     avg_df = avg_df[avg_df['총매출'] > 0]
     bins = [0, 300000, 1000000, 3000000, 5000000, 10000000, 20000000, 30000000, np.inf]
@@ -120,8 +120,8 @@ if uploaded_file:
     if time_filter == "월별":
         rep_df = subset.groupby('담당자')['총매출'].sum().reset_index()
     else:
-        month_count = subset['기준년월'].dt.to_period('M').nunique()
-        rep_df = subset.groupby('담당자')['총매출'].sum().div(month_count).reset_index()
+    month_count = subset['기준년월'].dt.to_period('M').nunique()
+    rep_df = subset.groupby('담당자')['총매출'].sum().div(month_count).reset_index()
 
     rep_df = rep_df[rep_df['총매출'] > 0]
     rep_bins = [0, 80000000, 110000000, 140000000, 170000000, 200000000, np.inf]
@@ -163,9 +163,9 @@ if uploaded_file:
             hanmi_summary = filtered_hanmi.groupby(['기준년월', '담당자'])['총매출'].sum().reset_index()
             st.dataframe(hanmi_summary.sort_values(by='기준년월'))
         else:
-            st.warning("선택한 조건에 해당하는 한미플루 매출 데이터가 없습니다.")
     else:
-        st.info("한미플루 매출 데이터가 없습니다.")
+        st.warning("선택한 조건에 해당하는 한미플루 매출 데이터가 없습니다.")
+    st.info("한미플루 매출 데이터가 없습니다.")
 
 # 🔍 상세 매출 필터 분석
 st.subheader("🔍 상세 매출 필터 분석")
@@ -279,7 +279,7 @@ else:
             top_rep_amt = df.groupby('담당자')['총매출'].sum().max()
             st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
         else:
-            st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
+        st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
    
    
     # 다운로드
