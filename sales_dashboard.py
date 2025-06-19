@@ -167,40 +167,40 @@ if uploaded_file:
     else:
         st.info("한미플루 매출 데이터가 없습니다.")
 
-    # 상세 매출 분석
-    st.subheader("🔍 상세 매출 필터 분석")
-    with st.expander("필터 조건 설정"):
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            selected_rep = st.multiselect("담당자", options=df['담당자'].unique(), key="rep_filter")
-            selected_group = st.multiselect("품목군", options=df['품목군'].unique() if '품목군' in df.columns else [], key="group_filter")
-        with col2:
-            selected_client = st.multiselect("거래처명", options=df['거래처명'].unique(), key="client_filter")
-            selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="product_filter")
-        with col3:
-            selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
+   # 상세 매출 분석
+st.subheader("🔍 상세 매출 필터 분석")
+with st.expander("필터 조건 설정"):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        selected_rep = st.multiselect("담당자", options=df['담당자'].unique(), key="rep_filter")
+        selected_group = st.multiselect("품목군", options=df['품목군'].unique() if '품목군' in df.columns else [], key="group_filter")
+    with col2:
+        selected_client = st.multiselect("거래처명", options=df['거래처명'].unique(), key="client_filter")
+        selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="product_filter")
+    with col3:
+        selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
 
-    filtered_df = df.copy()
-    if selected_rep:
-        filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
-    if selected_client:
-        filtered_df = filtered_df[filtered_df['거래처명'].isin(selected_client)]
-    if selected_group:
-        filtered_df = filtered_df[filtered_df['품목군'].isin(selected_group)]
-    if selected_product:
-        filtered_df = filtered_df[filtered_df['품목명'].isin(selected_product)]
-    if selected_months:
-        filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
+filtered_df = df.copy()
+if selected_rep:
+    filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
+if selected_client:
+    filtered_df = filtered_df[filtered_df['거래처명'].isin(selected_client)]
+if selected_group:
+    filtered_df = filtered_df[filtered_df['품목군'].isin(selected_group)]
+if selected_product:
+    filtered_df = filtered_df[filtered_df['품목명'].isin(selected_product)]
+if selected_months:
+    filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
 
-    display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
-    existing_cols = [col for col in display_cols if col in filtered_df.columns]
+display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
+existing_cols = [col for col in display_cols if col in filtered_df.columns]
 
-    if not filtered_df.empty:
-        st.dataframe(filtered_df[existing_cols])
-    else:
-        st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
+if not filtered_df.empty:
+    st.dataframe(filtered_df[existing_cols])
+else:
+    st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
-    # 그래프 선택 필터
+# 📊 월별 매출 추이 그래프
 st.subheader("📊 월별 매출 추이 그래프")
 graph_option = st.radio("확인할 그래프를 선택하세요:", 
                         ["제품별 매출 추이", "거래처별 매출 추이", "담당자별 매출 추이"])
