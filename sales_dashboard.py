@@ -86,29 +86,29 @@ if uploaded_file:
         subset = df_main[df_main['년월'] == selected_month]
         title_unit = f"{selected_month}"
     else:
-    selected_quarter = st.selectbox("기준분기 선택", sorted(df['분기'].unique()), key="분기선택")
-    subset = df_main[df_main['분기'] == selected_quarter]
-    title_unit = f"{selected_quarter} 평균"
+        selected_quarter = st.selectbox("기준분기 선택", sorted(df['분기'].unique()), key="분기선택")
+        subset = df_main[df_main['분기'] == selected_quarter]
+        title_unit = f"{selected_quarter} 평균"
 
     if time_filter == "월별":
         avg_df = subset.groupby('거래처명')['총매출'].sum().reset_index()
     else:
-    month_count = subset['기준년월'].dt.to_period('M').nunique()
-    avg_df = subset.groupby('거래처명')['총매출'].sum().div(month_count).reset_index()
+        month_count = subset['기준년월'].dt.to_period('M').nunique()
+        avg_df = subset.groupby('거래처명')['총매출'].sum().div(month_count).reset_index()
 
-    avg_df = avg_df[avg_df['총매출'] > 0]
-    bins = [0, 300000, 1000000, 3000000, 5000000, 10000000, 20000000, 30000000, np.inf]
-    labels = ['0~30만원', '30~100만원', '100~300만원', '300~500만원', '500~1000만원', '1000~2000만원', '2000~3000만원', '3000만원 이상']
-    avg_df['매출구간'] = pd.cut(avg_df['총매출'], bins=bins, labels=labels, right=True)
-    section_count = avg_df['매출구간'].value_counts(sort=False).reindex(labels, fill_value=0)
+        avg_df = avg_df[avg_df['총매출'] > 0]
+        bins = [0, 300000, 1000000, 3000000, 5000000, 10000000, 20000000, 30000000, np.inf]
+        labels = ['0~30만원', '30~100만원', '100~300만원', '300~500만원', '500~1000만원', '1000~2000만원', '2000~3000만원', '3000만원 이상']
+        avg_df['매출구간'] = pd.cut(avg_df['총매출'], bins=bins, labels=labels, right=True)
+        section_count = avg_df['매출구간'].value_counts(sort=False).reindex(labels, fill_value=0)
 
-    fig4, ax4 = plt.subplots()
-    sns.barplot(x=section_count.index, y=section_count.values, ax=ax4)
-    ax4.set_title(f"{title_unit} 거래처 매출 구간 분포")
-    ax4.set_ylabel("거래처 수")
-    ax4.bar_label(ax4.containers[0])
-    plt.xticks(rotation=45)
-    st.pyplot(fig4)
+        fig4, ax4 = plt.subplots()
+        sns.barplot(x=section_count.index, y=section_count.values, ax=ax4)
+        ax4.set_title(f"{title_unit} 거래처 매출 구간 분포")
+        ax4.set_ylabel("거래처 수")
+        ax4.bar_label(ax4.containers[0])
+        plt.xticks(rotation=45)
+        st.pyplot(fig4)
 
     with st.expander("🗂️ 해당 구간 거래처 목록 보기"):
         for label in labels:
@@ -120,23 +120,23 @@ if uploaded_file:
     if time_filter == "월별":
         rep_df = subset.groupby('담당자')['총매출'].sum().reset_index()
     else:
-    month_count = subset['기준년월'].dt.to_period('M').nunique()
-    rep_df = subset.groupby('담당자')['총매출'].sum().div(month_count).reset_index()
+        month_count = subset['기준년월'].dt.to_period('M').nunique()
+        rep_df = subset.groupby('담당자')['총매출'].sum().div(month_count).reset_index()
 
-    rep_df = rep_df[rep_df['총매출'] > 0]
-    rep_bins = [0, 80000000, 110000000, 140000000, 170000000, 200000000, np.inf]
-    rep_labels = ['~0.8억', '0.8~1.1억', '1.1~1.4억', '1.4~1.7억', '1.7~2.0억', '2.0억 이상']
-    rep_df['매출구간'] = pd.cut(rep_df['총매출'], bins=rep_bins, labels=rep_labels, right=True)
-    rep_section = rep_df['매출구간'].value_counts(sort=False).reindex(rep_labels, fill_value=0)
+        rep_df = rep_df[rep_df['총매출'] > 0]
+        rep_bins = [0, 80000000, 110000000, 140000000, 170000000, 200000000, np.inf]
+        rep_labels = ['~0.8억', '0.8~1.1억', '1.1~1.4억', '1.4~1.7억', '1.7~2.0억', '2.0억 이상']
+        rep_df['매출구간'] = pd.cut(rep_df['총매출'], bins=rep_bins, labels=rep_labels, right=True)
+        rep_section = rep_df['매출구간'].value_counts(sort=False).reindex(rep_labels, fill_value=0)
 
-    fig_rep, ax_rep = plt.subplots()
-    sns.barplot(x=rep_section.index, y=rep_section.values, ax=ax_rep)
-    ax_rep.set_title(f"{title_unit} 담당자 매출 구간 분포")
-    ax_rep.set_xlabel("매출구간")
-    ax_rep.set_ylabel("담당자 수")
-    ax_rep.bar_label(ax_rep.containers[0])
-    plt.xticks(rotation=45)
-    st.pyplot(fig_rep)
+        fig_rep, ax_rep = plt.subplots()
+        sns.barplot(x=rep_section.index, y=rep_section.values, ax=ax_rep)
+        ax_rep.set_title(f"{title_unit} 담당자 매출 구간 분포")
+        ax_rep.set_xlabel("매출구간")
+        ax_rep.set_ylabel("담당자 수")
+        ax_rep.bar_label(ax_rep.containers[0])
+        plt.xticks(rotation=45)
+        st.pyplot(fig_rep)
 
     with st.expander("🗂️ 해당 구간 담당자 목록 보기"):
         for label in rep_labels:
