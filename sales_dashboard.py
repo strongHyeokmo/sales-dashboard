@@ -200,9 +200,9 @@ if not filtered_df.empty:
 else:
     st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
-# 📊 월별 매출 추이 그래프 (필터 기반 통합 그래프)
 st.subheader("📊 월별 매출 추이 그래프")
-with st.expander("그래프 필터 조건"):
+
+with st.expander("📌 필터 조건 설정"):
     col1, col2, col3 = st.columns(3)
     with col1:
         selected_group = st.multiselect("품목군", options=df['품목군'].unique(), key="chart_group")
@@ -210,10 +210,8 @@ with st.expander("그래프 필터 조건"):
     with col2:
         selected_clients = st.multiselect("거래처명", options=df['거래처명'].unique(), key="chart_client")
         selected_rep_chart = st.multiselect("담당자", options=df['담당자'].unique(), key="chart_rep")
-    with col3:
-        selected_chart_type = st.radio("그래프 유형", ["제품별 매출 추이", "거래처별 매출 추이", "담당자별 매출 추이"], key="chart_type")
 
-# ⛏ 필터 적용
+# 필터 적용
 filtered_chart_df = df.copy()
 if selected_group:
     filtered_chart_df = filtered_chart_df[filtered_chart_df['품목군'].isin(selected_group)]
@@ -224,28 +222,37 @@ if selected_clients:
 if selected_rep_chart:
     filtered_chart_df = filtered_chart_df[filtered_chart_df['담당자'].isin(selected_rep_chart)]
 
-# ⬇ 그래프 시각화
-if not filtered_chart_df.empty:
-    if selected_chart_type == "제품별 매출 추이":
-        chart_df = filtered_chart_df.groupby(['기준년월', '품목명'])['총매출'].sum().reset_index()
-        hue = '품목명'
-    elif selected_chart_type == "거래처별 매출 추이":
-        chart_df = filtered_chart_df.groupby(['기준년월', '거래처명'])['총매출'].sum().reset_index()
-        hue = '거래처명'
-    else:
-        chart_df = filtered_chart_df.groupby(['기준년월', '담당자'])['총매출'].sum().reset_index()
-        hue = '담당자'
+# 그래프 함수 정의
+def draw_monthly_lineplot(df_in, group_col, title_prefix):
+    if df_in.empty:
+        st.warning(f"📭 {title_prefix} 매출 데이터가 없습니다.")
+        return
 
+    group_df = (
+        df_in.groupby(['기준년월', group_col])['총매출']
+        .sum().reset_index().sort_values(by='기준년월')
+    )
+    total = group_df['총매출'].sum()
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.lineplot(data=chart_df, x='기준년월', y='총매출', hue=hue, marker='o', ax=ax)
-    ax.set_title(f"{selected_chart_type}")
+    sns.lineplot(data=group_df, x='기준년월', y='총매출', hue=group_col, marker='o', ax=ax)
+    ax.set_title(f"{title_prefix} 월별 매출 추이 (총합: {total:,.0f}원)")
     ax.set_xlabel("기준년월")
     ax.set_ylabel("총매출")
+    ax.legend(title=group_col, bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig)
-else:
-    st.warning("해당 필터 조건에 일치하는 매출 데이터가 없습니다.")
+
+# 시각화
+st.markdown("#### ✅ 제품별 매출 추이")
+draw_monthly_lineplot(filtered_chart_df, '품목명', "제품별")
+
+st.markdown("#### ✅ 거래처별 매출 추이")
+draw_monthly_lineplot(filtered_chart_df, '거래처명', "거래처별")
+
+st.markdown("#### ✅ 담당자별 매출 추이")
+draw_monthly_lineplot(filtered_chart_df, '담당자', "담당자별")
+
 
 
     # 자연어 질문 예시
