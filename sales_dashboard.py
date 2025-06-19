@@ -278,7 +278,7 @@ else:
             top_rep_amt = df.groupby('담당자')['총매출'].sum().max()
             st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
         else:
-        st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
+            st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
    
    
     # 다운로드
