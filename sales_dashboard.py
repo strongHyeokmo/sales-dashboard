@@ -167,8 +167,9 @@ if uploaded_file:
     else:
         st.info("한미플루 매출 데이터가 없습니다.")
 
- # 🔍 상세 매출 필터 분석
+# 🔍 상세 매출 필터 분석
 st.subheader("🔍 상세 매출 필터 분석")
+
 with st.expander("필터 조건 설정"):
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -180,6 +181,7 @@ with st.expander("필터 조건 설정"):
     with col3:
         selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
 
+# 필터 적용
 filtered_df = df.copy()
 if selected_rep:
     filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
@@ -192,6 +194,7 @@ if selected_product:
 if selected_months:
     filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
 
+# 테이블 출력
 display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
 existing_cols = [col for col in display_cols if col in filtered_df.columns]
 
@@ -206,11 +209,11 @@ st.subheader("📊 월별 매출 추이")
 if not filtered_df.empty:
     filtered_df['기준년월_str'] = filtered_df['기준년월'].dt.strftime('%Y-%m')
 
-    # 월별 총합 계산 (총합도 하나의 항목처럼 포함)
+    # 월별 총합 계산
     total_monthly = filtered_df.groupby('기준년월_str')['총매출'].sum().reset_index()
     total_monthly['구분'] = '총합'
 
-    # 어떤 항목이 복수개 있는지 판별하여 분기
+    # 자동 분기
     unique_products = filtered_df['품목명'].nunique()
     unique_clients = filtered_df['거래처명'].nunique()
     unique_reps = filtered_df['담당자'].nunique()
@@ -231,7 +234,6 @@ if not filtered_df.empty:
         grouped = pd.DataFrame(columns=['기준년월_str', '총매출', '구분'])
         title = "📊 월별 총매출"
 
-    # 총합 포함하여 병합
     plot_data = pd.concat([grouped, total_monthly], ignore_index=True)
 
     # 그래프 그리기
