@@ -166,91 +166,91 @@ if uploaded_file:
             st.warning("선택한 조건에 해당하는 한미플루 매출 데이터가 없습니다.")
             st.info("한미플루 매출 데이터가 없습니다.")
 
-# 🔍 상세 매출 필터 분석
-st.subheader("🔍 상세 매출 필터 분석")
+    # 🔍 상세 매출 필터 분석
+    st.subheader("🔍 상세 매출 필터 분석")
 
-with st.expander("필터 조건 설정"):
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        selected_rep = st.multiselect("담당자", options=df['담당자'].unique(), key="rep_filter")
-        selected_group = st.multiselect("품목군", options=df['품목군'].unique() if '품목군' in df.columns else [], key="group_filter")
-    with col2:
-        selected_client = st.multiselect("거래처명", options=df['거래처명'].unique(), key="client_filter")
-        selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="product_filter")
-    with col3:
-        selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
+    with st.expander("필터 조건 설정"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            selected_rep = st.multiselect("담당자", options=df['담당자'].unique(), key="rep_filter")
+            selected_group = st.multiselect("품목군", options=df['품목군'].unique() if '품목군' in df.columns else [], key="group_filter")
+        with col2:
+            selected_client = st.multiselect("거래처명", options=df['거래처명'].unique(), key="client_filter")
+            selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="product_filter")
+        with col3:
+            selected_months = st.multiselect("기준년월", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="month_filter")
 
-# 필터 적용
-filtered_df = df.copy()
-if selected_rep:
-    filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
-if selected_client:
-    filtered_df = filtered_df[filtered_df['거래처명'].isin(selected_client)]
-if selected_group:
-    filtered_df = filtered_df[filtered_df['품목군'].isin(selected_group)]
-if selected_product:
-    filtered_df = filtered_df[filtered_df['품목명'].isin(selected_product)]
-if selected_months:
-    filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
+    # 필터 적용
+    filtered_df = df.copy()
+    if selected_rep:
+        filtered_df = filtered_df[filtered_df['담당자'].isin(selected_rep)]
+    if selected_client:
+        filtered_df = filtered_df[filtered_df['거래처명'].isin(selected_client)]
+    if selected_group:
+        filtered_df = filtered_df[filtered_df['품목군'].isin(selected_group)]
+    if selected_product:
+        filtered_df = filtered_df[filtered_df['품목명'].isin(selected_product)]
+    if selected_months:
+        filtered_df = filtered_df[filtered_df['기준년월'].dt.strftime('%Y-%m').isin(selected_months)]
 
-# 테이블 출력
-display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
-existing_cols = [col for col in display_cols if col in filtered_df.columns]
+    # 테이블 출력
+    display_cols = ['기준년월', '담당자', '거래처명', '품목군', '품목명', '총수량', '총매출']
+    existing_cols = [col for col in display_cols if col in filtered_df.columns]
 
-if not filtered_df.empty:
-    st.dataframe(filtered_df[existing_cols])
-else:
-    st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
+    if not filtered_df.empty:
+        st.dataframe(filtered_df[existing_cols])
+    else:
+        st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
-# 📊 월별 매출 추이 (필터 포함)
-st.subheader("📊 월별 매출 추이")
+    # 📊 월별 매출 추이 (필터 포함)
+    st.subheader("📊 월별 매출 추이")
 
-with st.expander("월별 매출 그래프 필터"):
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        graph_filter_type = st.selectbox("기준 선택", ["품목명", "거래처명", "담당자"])
-    with col2:
-        selected_groups = st.multiselect("품목군", options=df['품목군'].dropna().unique(), key="graph_group")
-        selected_products = st.multiselect("품목명", options=df['품목명'].dropna().unique(), key="graph_product")
-    with col3:
-        graph_selected_months = st.multiselect("기준년월 선택", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="graph_month")
+    with st.expander("월별 매출 그래프 필터"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            graph_filter_type = st.selectbox("기준 선택", ["품목명", "거래처명", "담당자"])
+        with col2:
+            selected_groups = st.multiselect("품목군", options=df['품목군'].dropna().unique(), key="graph_group")
+            selected_products = st.multiselect("품목명", options=df['품목명'].dropna().unique(), key="graph_product")
+        with col3:
+            graph_selected_months = st.multiselect("기준년월 선택", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="graph_month")
 
-# 필터 적용
-graph_df = df.copy()
-if selected_groups:
-    graph_df = graph_df[graph_df['품목군'].isin(selected_groups)]
-if selected_products:
-    graph_df = graph_df[graph_df['품목명'].isin(selected_products)]
-if graph_selected_months:
-    graph_df = graph_df[graph_df['기준년월'].dt.strftime('%Y-%m').isin(graph_selected_months)]
+    # 필터 적용
+    graph_df = df.copy()
+    if selected_groups:
+        graph_df = graph_df[graph_df['품목군'].isin(selected_groups)]
+    if selected_products:
+        graph_df = graph_df[graph_df['품목명'].isin(selected_products)]
+    if graph_selected_months:
+        graph_df = graph_df[graph_df['기준년월'].dt.strftime('%Y-%m').isin(graph_selected_months)]
 
-if not graph_df.empty:
-    graph_df['기준년월_str'] = graph_df['기준년월'].dt.strftime('%Y-%m')
+    if not graph_df.empty:
+        graph_df['기준년월_str'] = graph_df['기준년월'].dt.strftime('%Y-%m')
 
-    label_col = graph_filter_type
-    grouped = (
-        graph_df.groupby(['기준년월_str', label_col])['총매출']
-        .sum().reset_index().rename(columns={label_col: '구분'})
-    )
+        label_col = graph_filter_type
+        grouped = (
+            graph_df.groupby(['기준년월_str', label_col])['총매출']
+            .sum().reset_index().rename(columns={label_col: '구분'})
+        )
 
-    total_monthly = (
-        graph_df.groupby('기준년월_str')['총매출']
-        .sum().reset_index()
-    )
-    total_monthly['구분'] = '총합'
+        total_monthly = (
+            graph_df.groupby('기준년월_str')['총매출']
+            .sum().reset_index()
+        )
+        total_monthly['구분'] = '총합'
 
-    plot_data = pd.concat([grouped, total_monthly], ignore_index=True)
+        plot_data = pd.concat([grouped, total_monthly], ignore_index=True)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.lineplot(data=plot_data, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
-    ax.set_title(f"📈 {graph_filter_type} 기준 월별 매출 추이 (총합 포함)")
-    ax.set_xlabel("기준년월")
-    ax.set_ylabel("총매출")
-    ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-else:
-    st.info("선택한 조건에 해당하는 데이터가 없습니다.")
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sns.lineplot(data=plot_data, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
+        ax.set_title(f"📈 {graph_filter_type} 기준 월별 매출 추이 (총합 포함)")
+        ax.set_xlabel("기준년월")
+        ax.set_ylabel("총매출")
+        ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+    else:
+        st.info("선택한 조건에 해당하는 데이터가 없습니다.")
 
 
 
