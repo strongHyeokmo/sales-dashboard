@@ -203,50 +203,47 @@ if not filtered_df.empty:
 else:
     st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
-# 📊 월별 매출 추이
+# 📊 월별 매출 추이 (필터 포함)
 st.subheader("📊 월별 매출 추이")
 
-if not filtered_df.empty:
-    filtered_df['기준년월_str'] = filtered_df['기준년월'].dt.strftime('%Y-%m')
+with st.expander("월별 매출 그래프 필터"):
+    col1, col2 = st.columns(2)
+    with col1:
+        graph_filter_type = st.selectbox("기준 선택", ["품목명", "거래처명", "담당자"])
+    with col2:
+        graph_selected_months = st.multiselect("기준년월 선택", options=df['기준년월'].dt.strftime('%Y-%m').unique(), key="graph_month")
 
-    # 월별 총합 계산
-    total_monthly = filtered_df.groupby('기준년월_str')['총매출'].sum().reset_index()
+# 필터링된 데이터 사용
+graph_df = df.copy()
+if graph_selected_months:
+    graph_df = graph_df[graph_df['기준년월'].dt.strftime('%Y-%m').isin(graph_selected_months)]
+
+if not graph_df.empty:
+    graph_df['기준년월_str'] = graph_df['기준년월'].dt.strftime('%Y-%m')
+
+    # 선택한 기준에 따라 그룹핑
+    label_col = graph_filter_type
+    grouped = graph_df.groupby(['기준년월_str', label_col])['총매출'].sum().reset_index()
+    grouped = grouped.rename(columns={label_col: '구분'})
+
+    # 월별 총합 계산 추가
+    total_monthly = graph_df.groupby('기준년월_str')['총매출'].sum().reset_index()
     total_monthly['구분'] = '총합'
-
-    # 자동 분기
-    unique_products = filtered_df['품목명'].nunique()
-    unique_clients = filtered_df['거래처명'].nunique()
-    unique_reps = filtered_df['담당자'].nunique()
-
-    if unique_products > 1:
-        grouped = filtered_df.groupby(['기준년월_str', '품목명'])['총매출'].sum().reset_index()
-        grouped = grouped.rename(columns={'품목명': '구분'})
-        title = "📦 제품별 월별 매출 추이"
-    elif unique_clients > 1:
-        grouped = filtered_df.groupby(['기준년월_str', '거래처명'])['총매출'].sum().reset_index()
-        grouped = grouped.rename(columns={'거래처명': '구분'})
-        title = "🏢 거래처별 월별 매출 추이"
-    elif unique_reps > 1:
-        grouped = filtered_df.groupby(['기준년월_str', '담당자'])['총매출'].sum().reset_index()
-        grouped = grouped.rename(columns={'담당자': '구분'})
-        title = "👤 담당자별 월별 매출 추이"
-    else:
-        grouped = pd.DataFrame(columns=['기준년월_str', '총매출', '구분'])
-        title = "📊 월별 총매출"
 
     plot_data = pd.concat([grouped, total_monthly], ignore_index=True)
 
     # 그래프 그리기
     fig, ax = plt.subplots(figsize=(10, 5))
     sns.lineplot(data=plot_data, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
-    ax.set_title(title)
+    ax.set_title(f"📈 {graph_filter_type} 기준 월별 매출 추이 (총합 포함)")
     ax.set_xlabel("기준년월")
     ax.set_ylabel("총매출")
     ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.xticks(rotation=45)
     st.pyplot(fig)
 else:
-    st.info("먼저 필터 조건을 설정해 주세요.")
+    st.info("선택한 조건에 해당하는 데이터가 없습니다.")
+
 
     # 자연어 질문 예시
     st.subheader("🧠 자연어 질문 예시")
