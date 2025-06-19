@@ -200,58 +200,53 @@ if not filtered_df.empty:
 else:
     st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
-st.subheader("📊 월별 매출 추이 그래프")
+# 📈 월별 매출 추이 (자동 판단)
+st.subheader("📊 월별 매출 추이")
 
-with st.expander("📌 필터 조건 설정"):
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        selected_group = st.multiselect("품목군", options=df['품목군'].unique(), key="chart_group")
-        selected_product = st.multiselect("품목명", options=df['품목명'].unique(), key="chart_product")
-    with col2:
-        selected_clients = st.multiselect("거래처명", options=df['거래처명'].unique(), key="chart_client")
-        selected_rep_chart = st.multiselect("담당자", options=df['담당자'].unique(), key="chart_rep")
+if not filtered_df.empty:
+    filtered_df['기준년월_str'] = filtered_df['기준년월'].dt.strftime('%Y-%m')
 
-# 필터 적용
-filtered_chart_df = df.copy()
-if selected_group:
-    filtered_chart_df = filtered_chart_df[filtered_chart_df['품목군'].isin(selected_group)]
-if selected_product:
-    filtered_chart_df = filtered_chart_df[filtered_chart_df['품목명'].isin(selected_product)]
-if selected_clients:
-    filtered_chart_df = filtered_chart_df[filtered_chart_df['거래처명'].isin(selected_clients)]
-if selected_rep_chart:
-    filtered_chart_df = filtered_chart_df[filtered_chart_df['담당자'].isin(selected_rep_chart)]
+    # 월별 총합 계산 (총합도 하나의 항목처럼 포함)
+    total_monthly = filtered_df.groupby('기준년월_str')['총매출'].sum().reset_index()
+    total_monthly['구분'] = '총합'
 
-# 그래프 함수 정의
-def draw_monthly_lineplot(df_in, group_col, title_prefix):
-    if df_in.empty:
-        st.warning(f"📭 {title_prefix} 매출 데이터가 없습니다.")
-        return
+    # 어떤 항목이 복수개 있는지 판별하여 분기
+    unique_products = filtered_df['품목명'].nunique()
+    unique_clients = filtered_df['거래처명'].nunique()
+    unique_reps = filtered_df['담당자'].nunique()
 
-    group_df = (
-        df_in.groupby(['기준년월', group_col])['총매출']
-        .sum().reset_index().sort_values(by='기준년월')
-    )
-    total = group_df['총매출'].sum()
+    if unique_products > 1:
+        grouped = filtered_df.groupby(['기준년월_str', '품목명'])['총매출'].sum().reset_index()
+        grouped = grouped.rename(columns={'품목명': '구분'})
+        title = "📦 제품별 월별 매출 추이"
+    elif unique_clients > 1:
+        grouped = filtered_df.groupby(['기준년월_str', '거래처명'])['총매출'].sum().reset_index()
+        grouped = grouped.rename(columns={'거래처명': '구분'})
+        title = "🏢 거래처별 월별 매출 추이"
+    elif unique_reps > 1:
+        grouped = filtered_df.groupby(['기준년월_str', '담당자'])['총매출'].sum().reset_index()
+        grouped = grouped.rename(columns={'담당자': '구분'})
+        title = "👤 담당자별 월별 매출 추이"
+    else:
+        grouped = pd.DataFrame(columns=['기준년월_str', '총매출', '구분'])
+        title = "📊 월별 총매출"
+
+    # 총합 포함하여 병합
+    final_df = pd.concat([grouped, total_monthly], ignore_index=True)
+
+    # 그래프 그리기
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.lineplot(data=group_df, x='기준년월', y='총매출', hue=group_col, marker='o', ax=ax)
-    ax.set_title(f"{title_prefix} 월별 매출 추이 (총합: {total:,.0f}원)")
+    sns.lineplot(data=final_df, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
+
+    ax.set_title(title)
     ax.set_xlabel("기준년월")
     ax.set_ylabel("총매출")
-    ax.legend(title=group_col, bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.xticks(rotation=45)
-    plt.tight_layout()
     st.pyplot(fig)
+else:
+    st.info("먼저 필터 조건을 설정해 주세요.")
 
-# 시각화
-st.markdown("#### ✅ 제품별 매출 추이")
-draw_monthly_lineplot(filtered_chart_df, '품목명', "제품별")
-
-st.markdown("#### ✅ 거래처별 매출 추이")
-draw_monthly_lineplot(filtered_chart_df, '거래처명', "거래처별")
-
-st.markdown("#### ✅ 담당자별 매출 추이")
-draw_monthly_lineplot(filtered_chart_df, '담당자', "담당자별")
 
 
 # 자연어 질문 예시
