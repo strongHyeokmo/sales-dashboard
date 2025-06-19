@@ -167,7 +167,7 @@ if uploaded_file:
     else:
         st.info("한미플루 매출 데이터가 없습니다.")
 
-   # 상세 매출 분석
+# 상세 매출 분석
 st.subheader("🔍 상세 매출 필터 분석")
 with st.expander("필터 조건 설정"):
     col1, col2, col3 = st.columns(3)
@@ -199,6 +199,7 @@ if not filtered_df.empty:
     st.dataframe(filtered_df[existing_cols])
 else:
     st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
+
 
 # 📈 월별 매출 추이 (자동 판단)
 st.subheader("📊 월별 매출 추이")
