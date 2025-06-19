@@ -235,17 +235,17 @@ if uploaded_file:
         # 총합 포함하여 병합
         final_df = pd.concat([grouped, total_monthly], ignore_index=True)
 
-        # 그래프 그리기
+       if not filtered_df.empty:
+        # --- 그래프 그리기 로직 ---
         fig, ax = plt.subplots(figsize=(10, 5))
-        sns.lineplot(data=final_df, x='기준년월_str', y='총매출', hue='구분', marker='o', ax=ax)
-
+        sns.lineplot(data=plot_data, x='기준년월', y='총매출', hue='구분', marker='o', ax=ax)
         ax.set_title(title)
         ax.set_xlabel("기준년월")
         ax.set_ylabel("총매출")
         ax.legend(title="구분", bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.xticks(rotation=45)
         st.pyplot(fig)
-        else:
+    else:
         st.info("먼저 필터 조건을 설정해 주세요.")
 
 
