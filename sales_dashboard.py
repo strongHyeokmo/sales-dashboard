@@ -256,29 +256,30 @@ draw_monthly_lineplot(filtered_chart_df, '담당자', "담당자별")
 
 # 자연어 질문 예시
 st.subheader("🧠 자연어 질문 예시")
-    question = st.text_input("질문 입력 (예: '3월 매출이 가장 높은 거래처는?', '아모잘탄 매출은 얼마야?')")
-    if question:
-        q = question.replace(' ', '')
-        if '3월' in q and '거래처' in q and '높' in q:
-            top = df[df['기준년월'].dt.month == 3].groupby('거래처명')['총매출'].sum().idxmax()
-            st.success(f"3월 매출이 가장 높은 거래처는 **{top}** 입니다.")
-        elif '아모잘탄' in q and '매출' in q:
-            amount = df[df['품목명'].str.contains('아모잘탄', na=False)]['총매출'].sum()
-            st.success(f"아모잘탄 매출은 총 {amount:,.0f}원입니다.")
-        elif '거래처' in q and '가장많이' in q:
-            most = df.groupby('거래처명')['총매출'].sum().idxmax()
-            st.success(f"가장 많이 판매된 거래처는 **{most}** 입니다.")
-        elif '품목' in q and '가장많이' in q:
-            most_item = df.groupby('품목명')['총매출'].sum().idxmax()
-            st.success(f"가장 많이 팔린 품목은 **{most_item}** 입니다.")
-        elif '총매출' in q and '합계' in q:
-            st.success(f"전체 총매출은 {df['총매출'].sum():,.0f}원입니다.")
-        elif '담당자' in q and '매출' in q:
-            top_rep = df.groupby('담당자')['총매출'].sum().idxmax()
-            top_rep_amt = df.groupby('담당자')['총매출'].sum().max()
-            st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
-        else:
-            st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요. 더 많은 질문 유형은 곧 추가될 예정입니다.")    
+question = st.text_input("질문 입력 (예: '3월 매출이 가장 높은 거래처는?', '아모잘탄 매출은 얼마야?')")
+if question:
+    q = question.replace(' ', '')
+    if '3월' in q and '거래처' in q and '높' in q:
+        top = df[df['기준년월'].dt.month == 3].groupby('거래처명')['총매출'].sum().idxmax()
+        st.success(f"3월 매출이 가장 높은 거래처는 **{top}** 입니다.")
+    elif '아모잘탄' in q and '매출' in q:
+        amount = df[df['품목명'].str.contains('아모잘탄', na=False)]['총매출'].sum()
+        st.success(f"아모잘탄 매출은 총 {amount:,.0f}원입니다.")
+    elif '거래처' in q and '가장많이' in q:
+        most = df.groupby('거래처명')['총매출'].sum().idxmax()
+        st.success(f"가장 많이 판매된 거래처는 **{most}** 입니다.")
+    elif '품목' in q and '가장많이' in q:
+        most_item = df.groupby('품목명')['총매출'].sum().idxmax()
+        st.success(f"가장 많이 팔린 품목은 **{most_item}** 입니다.")
+    elif '총매출' in q and '합계' in q:
+        st.success(f"전체 총매출은 {df['총매출'].sum():,.0f}원입니다.")
+    elif '담당자' in q and '매출' in q:
+        top_rep = df.groupby('담당자')['총매출'].sum().idxmax()
+        top_rep_amt = df.groupby('담당자')['총매출'].sum().max()
+        st.success(f"가장 높은 매출을 기록한 담당자는 **{top_rep}**이며, 총 {top_rep_amt:,.0f}원입니다.")
+    else:
+        st.warning("죄송합니다. 이 질문은 아직 지원되지 않아요.")
+   
    
     # 다운로드
     st.subheader("⬇ 분석 결과 다운로드")
