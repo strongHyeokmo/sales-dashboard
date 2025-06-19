@@ -200,6 +200,57 @@ if uploaded_file:
     else:
         st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
 
+    # 그래프 선택 필터
+st.subheader("📊 월별 매출 추이 그래프")
+graph_option = st.radio("확인할 그래프를 선택하세요:", 
+                        ["제품별 매출 추이", "거래처별 매출 추이", "담당자별 매출 추이"])
+
+if not filtered_df.empty:
+    if graph_option == "제품별 매출 추이":
+        product_monthly = (
+            filtered_df.groupby(['기준년월', '품목명'])['총매출']
+            .sum().reset_index().sort_values(by='기준년월')
+        )
+        fig1, ax1 = plt.subplots(figsize=(10, 5))
+        sns.lineplot(data=product_monthly, x='기준년월', y='총매출', hue='품목명', marker='o', ax=ax1)
+        ax1.set_title("제품별 월별 매출 추이")
+        ax1.set_xlabel("기준년월")
+        ax1.set_ylabel("총매출")
+        ax1.legend(title="품목명", bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.xticks(rotation=45)
+        st.pyplot(fig1)
+
+    elif graph_option == "거래처별 매출 추이":
+        client_monthly = (
+            filtered_df.groupby(['기준년월', '거래처명'])['총매출']
+            .sum().reset_index().sort_values(by='기준년월')
+        )
+        fig2, ax2 = plt.subplots(figsize=(10, 5))
+        sns.lineplot(data=client_monthly, x='기준년월', y='총매출', hue='거래처명', marker='o', ax=ax2)
+        ax2.set_title("거래처별 월별 매출 추이")
+        ax2.set_xlabel("기준년월")
+        ax2.set_ylabel("총매출")
+        ax2.legend(title="거래처명", bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.xticks(rotation=45)
+        st.pyplot(fig2)
+
+    elif graph_option == "담당자별 매출 추이":
+        rep_monthly = (
+            filtered_df.groupby(['기준년월', '담당자'])['총매출']
+            .sum().reset_index().sort_values(by='기준년월')
+        )
+        fig3, ax3 = plt.subplots(figsize=(10, 5))
+        sns.lineplot(data=rep_monthly, x='기준년월', y='총매출', hue='담당자', marker='o', ax=ax3)
+        ax3.set_title("담당자별 월별 매출 추이")
+        ax3.set_xlabel("기준년월")
+        ax3.set_ylabel("총매출")
+        ax3.legend(title="담당자", bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.xticks(rotation=45)
+        st.pyplot(fig3)
+else:
+    st.warning("먼저 상단에서 필터 조건을 설정해 주세요.")
+
+
     # 자연어 질문 예시
     st.subheader("🧠 자연어 질문 예시")
     question = st.text_input("질문 입력 (예: '3월 매출이 가장 높은 거래처는?', '아모잘탄 매출은 얼마야?')")
