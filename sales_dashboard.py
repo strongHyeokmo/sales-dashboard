@@ -78,7 +78,7 @@ if uploaded_file:
     client_sales = df_total_filtered.groupby('거래처명')['총매출'].sum().reset_index().sort_values(by='총매출', ascending=False)
     st.dataframe(client_sales)
 
-    st.subheader("🏷️ 거래처 매출 구간 분석 (월/분기 선택)")
+   st.subheader("🏷️ 거래처 매출 구간 분석 (월/분기 선택)")
     time_filter = st.radio("분석 단위 선택", ["월별", "분기별"])
 
     if time_filter == "월별":
@@ -96,25 +96,26 @@ if uploaded_file:
         month_count = subset['기준년월'].dt.to_period('M').nunique()
         avg_df = subset.groupby('거래처명')['총매출'].sum().div(month_count).reset_index()
 
-        avg_df = avg_df[avg_df['총매출'] > 0]
-        bins = [0, 300000, 1000000, 3000000, 5000000, 10000000, 20000000, 30000000, np.inf]
-        labels = ['0~30만원', '30~100만원', '100~300만원', '300~500만원', '500~1000만원', '1000~2000만원', '2000~3000만원', '3000만원 이상']
-        avg_df['매출구간'] = pd.cut(avg_df['총매출'], bins=bins, labels=labels, right=True)
-        section_count = avg_df['매출구간'].value_counts(sort=False).reindex(labels, fill_value=0)
+    avg_df = avg_df[avg_df['총매출'] > 0]
+    bins = [0, 300000, 1000000, 3000000, 5000000, 10000000, 20000000, 30000000, np.inf]
+    labels = ['0~30만원', '30~100만원', '100~300만원', '300~500만원', '500~1000만원', '1000~2000만원', '2000~3000만원', '3000만원 이상']   # <-- 여기!
+    avg_df['매출구간'] = pd.cut(avg_df['총매출'], bins=bins, labels=labels, right=True)
+    section_count = avg_df['매출구간'].value_counts(sort=False).reindex(labels, fill_value=0)
 
-        fig4, ax4 = plt.subplots()
-        sns.barplot(x=section_count.index, y=section_count.values, ax=ax4)
-        ax4.set_title(f"{title_unit} 거래처 매출 구간 분포")
-        ax4.set_ylabel("거래처 수")
-        ax4.bar_label(ax4.containers[0])
-        plt.xticks(rotation=45)
-        st.pyplot(fig4)
+    fig4, ax4 = plt.subplots()
+    sns.barplot(x=section_count.index, y=section_count.values, ax=ax4)
+    ax4.set_title(f"{title_unit} 거래처 매출 구간 분포")
+    ax4.set_ylabel("거래처 수")
+    ax4.bar_label(ax4.containers[0])
+    plt.xticks(rotation=45)
+    st.pyplot(fig4)
 
     with st.expander("🗂️ 해당 구간 거래처 목록 보기"):
-        for label in labels:
+        for label in labels:   # <-- 여기!
             st.markdown(f"**{label}**")
             matched = avg_df[avg_df['매출구간'] == label]
             st.dataframe(matched[['거래처명', '총매출']].sort_values(by='총매출', ascending=False))
+
 
     st.subheader("👤 담당자 매출 구간 분석 (월/분기 선택)")
     if time_filter == "월별":
